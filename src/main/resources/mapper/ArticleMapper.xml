@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ifhc.mapper.ArticleMapper">
+    <resultMap id="BaseResultMap" type="com.ifhc.entity.Article">
+        <id column="id" jdbcType="BIGINT" property="id" />
+        <result column="url" jdbcType="VARCHAR" property="url" />
+        <result column="docno" jdbcType="VARCHAR" property="docno" />
+        <result column="title" jdbcType="VARCHAR" property="title" />
+        <result column="content"  property="content" />
+    </resultMap>
+
+    <resultMap id="BaseArticleNameResultMap" type="com.ifhc.entity.ArticleName">
+        <id column="id" jdbcType="BIGINT" property="id" />
+        <result column="url" jdbcType="VARCHAR" property="url" />
+        <result column="docno" jdbcType="VARCHAR" property="docno" />
+        <result column="title" jdbcType="VARCHAR" property="title" />
+    </resultMap>
+
+    <resultMap id="BaseArticleContentResultMap" type="com.ifhc.entity.ArticleContent">
+        <result column="docno" jdbcType="VARCHAR" property="docno" />
+        <result column="content"  property="content" />
+    </resultMap>
+
+    <select id="randomNews" resultMap="BaseResultMap" parameterType="java.lang.Integer">
+        select * from article limit #{randId},10;
+    </select>
+
+    <select id="searchNews" resultMap="BaseArticleNameResultMap" parameterType="java.lang.String">
+        select * from article_name where title like "%"#{word}"%" limit 10
+    </select>
+<!--    select * from article_name where match(title) AGAINST (#{word});-->
+
+    <select id="viewNews" resultMap="BaseArticleContentResultMap" parameterType="java.lang.String">
+        select * from article_content where docno=#{docno};
+    </select>
+</mapper>
