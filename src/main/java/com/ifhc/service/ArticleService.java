@@ -8,6 +8,7 @@ import java.util.List;
 
 public interface ArticleService {
     public List<ArticleName> ArticleSearch(String word);
-    public ArticleContent ArticleView(String docno);
-    public List<Article> ArticleRecommendByRandom();
+    public Article ArticleView(String docno);
+    public List<ArticleName> ArticleRecommendByRandom();
+    public List<ArticleName> ArticleNameRandom();
 }

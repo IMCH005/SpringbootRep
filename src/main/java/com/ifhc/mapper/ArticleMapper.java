@@ -10,6 +10,7 @@ import java.util.List;
 @Mapper
 public interface ArticleMapper {
     List<Article> randomNews(Integer randId);
+    List<ArticleName> randomArticleName(Integer randId);
     List<ArticleName> searchNews(String word);
-    ArticleContent viewNews(String docno);
+    Article viewNews(String docno);
 }

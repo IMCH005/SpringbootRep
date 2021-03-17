@@ -22,15 +22,23 @@ public class ArticleServiceImpl implements ArticleService {
     }
 
     @Override
-    public ArticleContent ArticleView(String docno) {
+    public Article ArticleView(String docno) {
         return articleMapper.viewNews(docno);
     }
 
     @Override
-    public List<Article> ArticleRecommendByRandom() {
+    public List<ArticleName> ArticleRecommendByRandom() {
         Random random=new Random();
         int randId=random.nextInt(50000)+1;
-        List<Article> articles=articleMapper.randomNews(randId);
-        return articles;
+        List<ArticleName> articleNames=articleMapper.randomArticleName(randId);
+        return articleNames;
+    }
+
+    @Override
+    public List<ArticleName> ArticleNameRandom() {
+        Random random=new Random();
+        int randId=random.nextInt(50000)+1;
+        List<ArticleName> articleNames=articleMapper.randomArticleName(randId);
+        return articleNames;
     }
 }

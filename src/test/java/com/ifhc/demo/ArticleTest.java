@@ -1,7 +1,6 @@
 package com.ifhc.demo;
 
 import com.ifhc.entity.Article;
-import com.ifhc.entity.ArticleContent;
 import com.ifhc.entity.ArticleName;
 import com.ifhc.mapper.ArticleMapper;
 import org.junit.Test;
@@ -43,7 +42,7 @@ public class ArticleTest {
 
     @Test
     public void testViewArticle(){
-        ArticleContent articleContents=articleMapper.viewNews("0000444b941ece98-ebc13306c0bb3300");
+//        ArticleContent articleContents=articleMapper.viewNews("0000444b941ece98-ebc13306c0bb3300");
 //        for (ArticleContent articleContent : articleContents) {
 //            System.out.println(articleContent);
 //        }

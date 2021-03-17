@@ -25,12 +25,19 @@
         select * from article limit #{randId},10;
     </select>
 
+    <select id="randomArticleName" resultMap="BaseArticleNameResultMap" parameterType="java.lang.Integer">
+        select * from article_name limit #{randId},10;
+    </select>
+
     <select id="searchNews" resultMap="BaseArticleNameResultMap" parameterType="java.lang.String">
-        select * from article_name where title like "%"#{word}"%" limit 10
+        select * from article_name where match(title) AGAINST (#{word} in boolean mode)
     </select>
 <!--    select * from article_name where match(title) AGAINST (#{word});-->
+<!--    select * from article_name where title like "%"#{word}"%"-->
 
-    <select id="viewNews" resultMap="BaseArticleContentResultMap" parameterType="java.lang.String">
-        select * from article_content where docno=#{docno};
+    <select id="viewNews" resultMap="BaseResultMap" parameterType="java.lang.String">
+        SELECT n.*,c.content from article_name n,article_content c where n.docno=c.docno and c.docno=#{docno}
     </select>
+
+
 </mapper>

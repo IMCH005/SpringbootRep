@@ -19,17 +19,18 @@
 </div>
 
 <div class="container navigation">
-    <div class="col-lg-12 " style="height: 30px;padding:0px">
-        <a href="/index">>>返回首页</a>
-    </div>
+    <ol class="breadcrumb" style="margin: 0px">
+        <li><a href="/index">首页</a></li>
+        <li class="active">文章</li>
+    </ol>
 </div>
 
 <div class="container">
     <div class="row">
         <div class="col-lg-7" id="newscontext">
-
             <div>
-                <h5 th:text="${articleContent.content}"></h5>
+                <h3 th:text="${article.title}" style="text-align: center"></h3>
+                <h5 th:text="${article.content}"></h5>
             </div>
         </div>
 
@@ -39,8 +40,8 @@
                     <h1>相关新闻</h1>
                 </div>
 
-                <div th:each="a : ${articles}">
-                    <li><a th:text="${a.title}" href="/view"></a></li>
+                <div th:each="a : ${articleNames}">
+                    <li><a th:text="${a.title}" th:href="@{/view(docno=${a.docno})}"></a></li>
                 </div>
             </div>
 
