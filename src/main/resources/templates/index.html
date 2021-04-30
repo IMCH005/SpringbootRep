@@ -29,6 +29,8 @@
 <div class="container">
     <div class="row">
         <div class="col-lg-7" id="newscontext">
+
+
             <form th:action="@{/search}" th:method="post">
             <div class="input-group">
                 <input type="text" class="form-control" th:name="word" placeholder="输入关键词查找..">
@@ -36,6 +38,18 @@
                     <button class="btn btn-primary" type="submit">搜索</button>
                 </span>
             </div><!-- /input-group -->
+                <label class="radio-inline">
+                    <input type="radio" th:name="inlineRadioOptions" id="inlineRadio1" value="option1" checked ="checked"> 全文搜索
+                </label>
+                <label class="radio-inline">
+                    <input type="radio" th:name="inlineRadioOptions" id="inlineRadio2" value="option2"> 分词搜索(tfidf)
+                </label>
+                <label class="radio-inline">
+                    <input type="radio" th:name="inlineRadioOptions" id="inlineRadio4" value="option4"> 分词搜索(bayes)
+                </label>
+                <label class="radio-inline">
+                    <input type="radio" th:name="inlineRadioOptions" id="inlineRadio3" value="option3">  like
+                </label>
             </form>
         </div>
 

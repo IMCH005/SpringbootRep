@@ -1,29 +1,14 @@
 package com.ifhc.entity;
 
-public class ArticleName {
+import java.io.Serializable;
+
+public class ArticleName implements Serializable {
+    private static final long serialVersionUID = 1717303153559139272L;
     int id;
     String docno;
     String url;
-
-    public String getUrl() {
-        return url;
-    }
-
-    public void setUrl(String url) {
-        this.url = url;
-    }
-
     String title;
-
-    @Override
-    public String toString() {
-        return "ArticleName{" +
-                "id=" + id +
-                ", docno='" + docno + '\'' +
-                ", url='" + url + '\'' +
-                ", title='" + title + '\'' +
-                '}';
-    }
+    float tfIdf;
 
     public int getId() {
         return id;
@@ -41,11 +26,27 @@ public class ArticleName {
         this.docno = docno;
     }
 
+    public String getUrl() {
+        return url;
+    }
+
+    public void setUrl(String url) {
+        this.url = url;
+    }
+
     public String getTitle() {
         return title;
     }
 
     public void setTitle(String title) {
         this.title = title;
+    }
+
+    public float getTfIdf() {
+        return tfIdf;
+    }
+
+    public void setTfIdf(float tfIdf) {
+        this.tfIdf = tfIdf;
     }
 }

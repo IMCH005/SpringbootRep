@@ -37,15 +37,27 @@
                     <button class="btn btn-primary" type="submit">搜索</button>
                 </span>
                     </div><!-- /input-group -->
+                    <label class="radio-inline">
+                        <input type="radio" th:name="inlineRadioOptions" id="inlineRadio1" value="option1" checked ="checked"> 全文搜索
+                    </label>
+                    <label class="radio-inline">
+                        <input type="radio" th:name="inlineRadioOptions" id="inlineRadio2" value="option2"> 分词搜索(tfidf)
+                    </label>
+                    <label class="radio-inline">
+                        <input type="radio" th:name="inlineRadioOptions" id="inlineRadio4" value="option4"> 分词搜索(bayes)
+                    </label>
+                    <label class="radio-inline">
+                        <input type="radio" th:name="inlineRadioOptions" id="inlineRadio3" value="option3">  like
+                    </label>
                 </form>
             </div>
             <div class="col-md-12 taketime">
                 <text>耗时：[[${taketime}]]ms</text>
                 <text>一共 [[${pageInfo.total}]] 条记录</text>
             </div>
-            <div th:each="a : ${articleNames}" class="listnews">
-                <li><a th:text="${a.title}" th:href="@{/view(docno=${a.docno})}"></a></li>
-
+<!--            <div th:each="a : ${articleNames}" class="listnews">-->
+                <div th:each="a : ${pageInfo.list}" class="listnews">
+                    <li><a th:text="${a.tfIdf}"></a>---<a th:text="${a.title}" th:href="@{/view(docno=${a.docno})}"></a></li>
             </div>
 
             <div class="modal-footer no-margin-top">
@@ -95,11 +107,13 @@
 <div class="container footer">
     <div class="row">
         <div class="col-lg-12" id="footertext">
-            <text>Copyright 2020-2022 Justin</text>
+            <text>Copyright 2020-2022 baba</text>
         </div>
     </div>
 </div>
 
-
+<script>
+    console.log("js来了")
+</script>
 </body>
 </html>

@@ -16,6 +16,14 @@
         <result column="title" jdbcType="VARCHAR" property="title" />
     </resultMap>
 
+    <resultMap id="TfidfArticleNameResultMap" type="com.ifhc.entity.ArticleName">
+        <id column="id" jdbcType="BIGINT" property="id" />
+        <result column="url" jdbcType="VARCHAR" property="url" />
+        <result column="docno" jdbcType="VARCHAR" property="docno" />
+        <result column="title" jdbcType="VARCHAR" property="title" />
+        <result column="tfIdf" jdbcType="FLOAT" property="sum_tf_idf" />
+    </resultMap>
+
     <resultMap id="BaseArticleContentResultMap" type="com.ifhc.entity.ArticleContent">
         <result column="docno" jdbcType="VARCHAR" property="docno" />
         <result column="content"  property="content" />
@@ -26,18 +34,77 @@
     </select>
 
     <select id="randomArticleName" resultMap="BaseArticleNameResultMap" parameterType="java.lang.Integer">
-        select * from article_name limit #{randId},10;
+        select * from article limit #{randId},10;
     </select>
 
     <select id="searchNews" resultMap="BaseArticleNameResultMap" parameterType="java.lang.String">
-        select * from article_name where match(title) AGAINST (#{word} in boolean mode)
+        select * from article where match(title) AGAINST (#{word} in boolean mode)
     </select>
 <!--    select * from article_name where match(title) AGAINST (#{word});-->
 <!--    select * from article_name where title like "%"#{word}"%"-->
-
-    <select id="viewNews" resultMap="BaseResultMap" parameterType="java.lang.String">
-        SELECT n.*,c.content from article_name n,article_content c where n.docno=c.docno and c.docno=#{docno}
+    <select id="searchNewsLike" resultMap="BaseArticleNameResultMap" parameterType="java.lang.String">
+        select * from article where title like "%"#{word}"%"
     </select>
 
+    <select id="viewNews" resultMap="BaseResultMap" parameterType="java.lang.String">
+        SELECT n.id,n.url,n.title,n.docno,c.content from article n,article_content c where n.docno=c.docno and c.docno=#{docno}
+    </select>
 
+    <insert id="addArticleWord" parameterType="java.util.List">
+        insert into article_word
+        (
+        id,
+        article_id,
+        word,
+        freqs,
+        freqs_title,
+        freqs_content
+        )
+        values
+        <foreach collection="list" item="item" index= "index" separator =",">
+            (
+            #{item.id},
+            #{item.articleId},
+            #{item.word},
+            #{item.freqs},
+            #{item.freqsTitle},
+            #{item.freqsContent}
+            )
+        </foreach>
+    </insert>
+    
+    <insert id="addVoc" parameterType="java.util.List">
+        insert into vocabulary
+        (
+         word,
+         freqs
+        )
+        values
+        <foreach collection="list" item="item" index= "index" separator =",">
+               (
+                #{item.word},
+                #{item.freqs}
+               )
+        </foreach>
+    </insert>
+
+    <select id="searchArticleNameByTfIdf" parameterType="java.util.List" resultMap="TfidfArticleNameResultMap">
+        select a.*,b.sum_tf_idf from article as a inner join (
+        select article_id,sum(tf_idf) as sum_tf_idf from article_word where word in
+        <foreach item='keyWord' collection='words'  open='(' separator=',' close=')'>
+            #{keyWord}
+        </foreach>
+        group by article_id
+        ) as b on a.id = b.article_id order by b.sum_tf_idf DESC
+    </select>
+
+    <select id="searchArticleNameByBayes" parameterType="java.util.List" resultMap="BaseArticleNameResultMap">
+        select a.* from article as a inner join (
+        select article_id,sum(smoothing) as sum_smoothing from article_word where word in
+        <foreach item='keyWord' collection='words'  open='(' separator=',' close=')'>
+            #{keyWord}
+        </foreach>
+        group by article_id
+        ) as b on a.id = b.article_id order by b.sum_smoothing DESC
+    </select>
 </mapper>

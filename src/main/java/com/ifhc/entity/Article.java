@@ -1,6 +1,9 @@
 package com.ifhc.entity;
 
-public class Article {
+import java.io.Serializable;
+
+public class Article implements Serializable {
+    private static final long serialVersionUID = 1327609803372351546L;
     int id;
     String url;
     String docno;

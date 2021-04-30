@@ -7,7 +7,10 @@ import com.ifhc.entity.ArticleContent;
 import com.ifhc.entity.ArticleName;
 import com.ifhc.service.ArticleService;
 import com.ifhc.util.BCUtil;
+import com.ifhc.util.JBUtil;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -19,12 +22,19 @@ public class ArticleController {
     @Autowired
     private ArticleService articleService;
 
+    @Autowired
+    private RedisTemplate<String,PageInfo> pageInfoRedisTemplate;
+
+    @Value("${selfconfig.pageSize}")
+    private int pageSize;
+
     @RequestMapping("/index")
     public String articleRandom(Model model) {
+
         List<ArticleName> articleNames = articleService.ArticleNameRandom();
-        for (ArticleName articleName : articleNames) {
-            System.out.println(articleName);
-        }
+//        for (ArticleName articleName : articleNames) {
+//            System.out.println(articleName);
+//        }
         model.addAttribute("articleNames", articleNames);
         return "index";
     }
@@ -32,52 +42,53 @@ public class ArticleController {
     @RequestMapping("/search")
     public String articleSearch(Model model,
                                 @RequestParam(required = false,defaultValue="1",value="pageNum")Integer pageNum,
-                                @RequestParam(defaultValue="10",value="pageSize")Integer pageSize,
-                                String word){
-        word= BCUtil.ToSBC(word);
-        if(pageNum == null){
-            pageNum = 1;   //设置默认当前页
+//                                @RequestParam(defaultValue="20",value="pageSize")Integer pageSize,
+                                String word,
+                                @RequestParam(required = false,defaultValue = "option1") String inlineRadioOptions){
+//        if(inlineRadioOptions.equals("option2")){
+//            if (word.equals("陈浩")){
+//                System.out.println("成功了没啊,宝贝儿");
+//                model.addAttribute("pageInfo",pageInfoRedisTemplate.opsForValue().get(word));
+//                model.addAttribute("word",word);
+//                return "search";
+//            }
+//        }
+        if(word==null){
+            return "index";
         }
-        if(pageNum <= 0){
-            pageNum = 1;
+        long startTime =  System.currentTimeMillis();
+        PageInfo<ArticleName> objectPageInfo = new PageInfo<ArticleName>();
+        if(inlineRadioOptions==null){
+            objectPageInfo=articleService.ArticleSearch(word,pageNum);
+        }else{
+            if(pageNum==1){
+                objectPageInfo=articleService.articleSearchcCache(word, inlineRadioOptions, pageNum);
+            }else{
+                objectPageInfo=articleService.ArticleSearch(word, inlineRadioOptions,pageNum);
+            }
         }
-        if(pageSize == null){
-            pageSize = 10;    //设置默认每页显示的数据数
-        }
-//        System.out.println("当前页是："+pageNum+"显示条数是："+pageSize);
 
-        //1.引入分页插件,pageNum是第几页，pageSize是每页显示多少条,默认查询总数count
-        PageHelper.startPage(pageNum,pageSize);
-        //2.紧跟的查询就是一个分页查询-必须紧跟.后面的其他查询不会被分页，除非再次调用PageHelper.startPage
-        try {
-            long startTime =  System.currentTimeMillis();
-            List<ArticleName> articleNames = articleService.ArticleSearch(word);
-            System.out.println("分页数据："+articleNames);
-            //3.使用PageInfo包装查询后的结果,5是连续显示的条数,结果list类型是Page<E>
-            PageInfo<ArticleName> pageInfo = new PageInfo<ArticleName>(articleNames,pageSize);
-            //4.使用model/map/modelandview等带回前端
-            model.addAttribute("articleNames",articleNames);
-            model.addAttribute("word",word);
-            model.addAttribute("pageInfo",pageInfo);
-            model.addAttribute("taketime",System.currentTimeMillis()-startTime);
-        }finally {
-            PageHelper.clearPage(); //清理 ThreadLocal 存储的分页参数,保证线程安全
-        }
-        //5.设置返回的jsp/html等前端页面
-        // thymeleaf默认就会拼串classpath:/templates/xxxx.html
+        model.addAttribute("word",word);
+        model.addAttribute("pageInfo",objectPageInfo);
+        model.addAttribute("taketime",System.currentTimeMillis()-startTime);
+
 
         return "search";
     }
 
     @RequestMapping("/view")
     public String viewArticle(Model model, String docno) {
-
         Article article = articleService.ArticleView(docno);
         model.addAttribute("article", article);
-        article.setContent(BCUtil.ToDBC(article.getContent()));
-        article.setTitle(BCUtil.ToDBC(article.getTitle()));
+
         List<ArticleName> articleNames = articleService.ArticleRecommendByRandom();
         model.addAttribute("articleNames", articleNames);
         return "view";
     }
+
+    @RequestMapping("/login")
+    public String login(Model model) {
+        return "login";
+    }
+
 }
