@@ -5,6 +5,7 @@ import com.github.pagehelper.PageInfo;
 import com.ifhc.entity.Article;
 import com.ifhc.entity.ArticleContent;
 import com.ifhc.entity.ArticleName;
+import com.ifhc.entity.View;
 import com.ifhc.service.ArticleService;
 import com.ifhc.util.BCUtil;
 import com.ifhc.util.JBUtil;
@@ -14,24 +15,19 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.yaml.snakeyaml.error.Mark;
 
 import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 
 @Controller
-public class ArticleController {
-    @Autowired
-    private ArticleService articleService;
-
-    @Autowired
-    private RedisTemplate<String,PageInfo> pageInfoRedisTemplate;
-
-    @Value("${selfconfig.pageSize}")
-    private int pageSize;
+public class ArticleController extends BaseController{
 
     @RequestMapping("/index")
     public String articleRandom(Model model) {
 
-        List<ArticleName> articleNames = articleService.ArticleNameRandom();
+        List<ArticleName> articleNames = articleService.ArticleRecommend(loginUser.getId());
 //        for (ArticleName articleName : articleNames) {
 //            System.out.println(articleName);
 //        }
@@ -45,14 +41,7 @@ public class ArticleController {
 //                                @RequestParam(defaultValue="20",value="pageSize")Integer pageSize,
                                 String word,
                                 @RequestParam(required = false,defaultValue = "option1") String inlineRadioOptions){
-//        if(inlineRadioOptions.equals("option2")){
-//            if (word.equals("陈浩")){
-//                System.out.println("成功了没啊,宝贝儿");
-//                model.addAttribute("pageInfo",pageInfoRedisTemplate.opsForValue().get(word));
-//                model.addAttribute("word",word);
-//                return "search";
-//            }
-//        }
+
         if(word==null){
             return "index";
         }
@@ -72,17 +61,40 @@ public class ArticleController {
         model.addAttribute("pageInfo",objectPageInfo);
         model.addAttribute("taketime",System.currentTimeMillis()-startTime);
 
-
         return "search";
     }
 
     @RequestMapping("/view")
-    public String viewArticle(Model model, String docno) {
-        Article article = articleService.ArticleView(docno);
-        model.addAttribute("article", article);
+    public String viewArticle(Model model, Integer id) {
+//        Article article = articleService.ArticleView(docno);
+//        model.addAttribute("article", article);
+        Article article=articleService.ArticleViewById(id);
+        model.addAttribute("article",article);
 
-        List<ArticleName> articleNames = articleService.ArticleRecommendByRandom();
-        model.addAttribute("articleNames", articleNames);
+        long l = System.currentTimeMillis();
+        TreeMap<Double,ArticleName> returnMap=articleService.ArticleSimilar(id);
+        model.addAttribute("returnMap",returnMap);
+
+        model.addAttribute("takeTime",System.currentTimeMillis()-l);
+
+        View mark=new View();
+        mark.setUserId(loginUser.getId());
+        mark.setArticleId(id);
+        View mark1=viewMapper.getByView(mark);
+        if(mark1!=null){
+            if(mark1.getQuality()==null)
+                mark1.setQuality(0);
+            if(mark1.getInterest()==null)
+                mark1.setInterest(0);
+            model.addAttribute("mark",mark1);
+        }else{
+            mark.setInterest(0);
+            mark.setQuality(0);
+            model.addAttribute("mark",mark);
+        }
+
+//        List<ArticleName> articleNames = articleService.ArticleRecommendByRandom();
+//        model.addAttribute("articleNames", articleNames);
         return "view";
     }
 
@@ -90,5 +102,7 @@ public class ArticleController {
     public String login(Model model) {
         return "login";
     }
+
+
 
 }

@@ -2,10 +2,9 @@ package com.ifhc.service.impl;
 
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
-import com.ifhc.entity.Article;
-import com.ifhc.entity.ArticleContent;
-import com.ifhc.entity.ArticleName;
+import com.ifhc.entity.*;
 import com.ifhc.mapper.ArticleMapper;
+import com.ifhc.mapper.ViewMapper;
 import com.ifhc.service.ArticleService;
 import com.ifhc.util.JBUtil;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,9 +12,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 
 @Service
 public class ArticleServiceImpl implements ArticleService {
@@ -24,6 +21,9 @@ public class ArticleServiceImpl implements ArticleService {
 
     @Autowired
     private RedisTemplate<String,PageInfo> pageInfoRedisTemplate;
+
+    @Autowired
+    private ViewMapper viewMapper;
 
     @Value("${selfconfig.pageSize}")
     private int pageSize;
@@ -76,7 +76,11 @@ public class ArticleServiceImpl implements ArticleService {
                 System.out.println(inlineRadioOptions);
                 articleNames=articleMapper.searchArticleNameByBayes(JBUtil.toWord(word));
             }
-//            System.out.println("分页数据："+articleNames);
+            System.out.println(articleNames+"******************");
+            for (ArticleName articleName : articleNames) {
+                articleName.setArticleWords(articleMapper.getArticleWord(JBUtil.toWord(word),articleName.getId()));
+                System.out.println(articleName+"+++++++++");
+            }
             //3.使用PageInfo包装查询后的结果,5是连续显示的条数,结果list类型是Page<E>
             pageInfo = new PageInfo<ArticleName>(articleNames,pageSize);
         }catch (Exception e){
@@ -108,6 +112,11 @@ public class ArticleServiceImpl implements ArticleService {
     }
 
     @Override
+    public Article ArticleViewById(Integer id) {
+        return articleMapper.viewNewsById(id);
+    }
+
+    @Override
     public List<ArticleName> ArticleRecommendByRandom() {
         Random random=new Random();
         int randId=random.nextInt(50000)+1;
@@ -121,5 +130,121 @@ public class ArticleServiceImpl implements ArticleService {
         int randId=random.nextInt(50000)+1;
         List<ArticleName> articleNames=articleMapper.randomArticleName(randId);
         return articleNames;
+    }
+
+    /**
+     * 核心推荐业务代码
+     * @param id
+     * @return
+     */
+    @Override
+    public List<ArticleName> ArticleRecommend(Integer id) {
+        View view=viewMapper.getAHighPointArticle(id);
+        // 若近期没有高评评分的文章则随机推荐
+        List<ArticleName> articleNames=new ArrayList<>();
+        if (view == null) {
+            return ArticleNameRandom();
+        }else{
+            List<SimilarityMatrix> recommendArticleView=viewMapper.Recommend(view.getArticleId());
+            for (SimilarityMatrix similarityMatrix : recommendArticleView) {
+                if(similarityMatrix.getArticleIdOne()!=view.getArticleId()){
+                    articleNames.add(articleMapper.getArticleNameById(similarityMatrix.getArticleIdOne()));
+                }else{
+                    articleNames.add(articleMapper.getArticleNameById(similarityMatrix.getArticleIdAnother()));
+                }
+            }
+            System.out.println("==========走了推荐=================");
+        }
+        return articleNames;
+
+    }
+
+    @Override
+    public TreeMap<Double, ArticleName> ArticleSimilar(Integer id) {
+        long l = System.currentTimeMillis();
+        ArticleName thisArticleName=articleMapper.getByListDimension(id,3);
+        System.out.println(thisArticleName+"=================耗时"+(System.currentTimeMillis()-l));
+        List<String> list = articleMapper.wordByArticleId(id,3);
+        System.out.println("list=================耗时"+(System.currentTimeMillis()-l));
+        List<Integer> ids=articleMapper.articleIdByWordList(list,id);
+        System.out.println("ids=================耗时"+ids.size()+"++++++"+(System.currentTimeMillis()-l));
+
+        TreeMap<Double, ArticleName> articleNames = new TreeMap<>(
+                new Comparator<Double>() {
+                    public int compare(Double obj1, Double obj2) {
+                        // 降序排序
+                        return obj2.compareTo(obj1);
+                    }
+                }
+        );
+        TreeMap<Double, ArticleName> returnArticleNames = new TreeMap<>(
+                new Comparator<Double>() {
+                    public int compare(Double obj1, Double obj2) {
+                        // 降序排序
+                        return obj2.compareTo(obj1);
+                    }
+                }
+        );
+        ArrayList<Double> top = new ArrayList<>();
+        Double cos=0.0d;
+        for (Integer iid : ids) {
+            cos=0.0d;
+
+                ArticleName articleName=articleMapper.getByListDimension(iid,3);
+                for (ArticleWord articleWord : articleName.getArticleWords()) {
+                    for (ArticleWord thisarticleWord : thisArticleName.getArticleWords()) {
+                        if(thisarticleWord.getWord().equals(articleWord.getWord())){
+                            cos+=thisarticleWord.getTfIdf()*articleWord.getTfIdf();
+                        }
+                    }
+                }
+                if(cos!=0.0d){
+                    cos=cos/(hailow(thisArticleName)*hailow(articleName));
+                    if(cos<0.98d)
+                    articleNames.put(cos,articleName);
+//                    System.out.println(cos);
+                }
+
+            cos=0.0d;
+
+        }
+
+        System.out.println("处理完用时+++++++++++++++++"+(System.currentTimeMillis()-l));
+
+        int index=0;
+        for (Map.Entry<Double, ArticleName> entry : articleNames.entrySet()) {
+            if(index<10){
+//                String key = entry.getKey().toString();
+//                String value = entry.getValue().toString();
+                ArticleName art=entry.getValue();
+                art.setTitle(articleMapper.getTitleById(entry.getValue().getId()));
+//                System.out.println(art);
+                returnArticleNames.put(entry.getKey(),art);
+                index++;
+
+            }else{
+                break;
+            }
+        }
+
+        return returnArticleNames;
+    }
+
+    @Override
+    public int saveOrUpdate(View view) {
+        View view1=viewMapper.getByView(view);
+        if(view1==null){
+            return viewMapper.insertView(view);
+        }else{
+            return viewMapper.updateView(view);
+        }
+    }
+
+    public Double hailow(ArticleName articleName){
+        Double thisEnd=0d;
+        for (ArticleWord articleWord : articleName.getArticleWords()) {
+            thisEnd+=Math.pow(articleWord.getTfIdf(),2);
+        }
+        return thisEnd=Math.sqrt(thisEnd);
     }
 }

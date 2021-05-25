@@ -23,10 +23,15 @@
     <ol class="breadcrumb">
         <li><a href="/index">首页</a></li>
     </ol>
+
+    <ol class="breadcrumb">
+        <text>[[${session.loginUser.username}]],[[${session.loginUser.gender}]],[[${session.loginUser.career}]]</text>
+        <li><a href="/user/out">退出</a></li>
+    </ol>
 </div>
 
 
-<div class="container">
+<div class="container content">
     <div class="row">
         <div class="col-lg-7" id="newscontext">
 
@@ -56,11 +61,11 @@
         <div class="col-lg-5" id="randomnews">
             <div class="row">
                 <div class="col-md-12">
-                    <h1>推荐新闻</h1>
+                    <h1>为你推荐</h1>
                 </div>
             </div>
             <div th:each="a : ${articleNames}" class="listnews">
-                <li><a th:text="${a.title}" th:href="@{/view(docno=${a.docno})}"></a></li>
+                <li><a th:text="${a.title}" th:href="@{/view(id=${a.id})}"></a></li>
             </div>
         </div>
 

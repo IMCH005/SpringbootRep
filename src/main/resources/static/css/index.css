@@ -1,22 +1,28 @@
 body{
     /*background-color: #9acfea;*/
     color: #0f0f0f;
+    list-style-type:none
 }
 
 
 
 .header{
     display: flex;
-    background-color: rgb(96,145,186);
+    background-color: rgb(21,0,107);
     color: #FFFFFF;
     justify-content: center;
 }
 
+.footer{
+    background-color: rgb(21,0,107);
+    color: #FFFFFF;
+}
+
 #randomnews{
     height: 600px;
-    padding-right: 50px;
+    padding-right: 30px;
     /*background-color: #5bc0de;*/
-    border-left-style: solid;
+    border-left:2px solid rgb(240,240,240);
     padding: 50px 80px 50px 50px;
 }
 
@@ -25,7 +31,7 @@ body{
     /*background-color: #3e8f3e;*/
     color: #0f0f0f;
     padding: 20px 30px 10px 40px;
-    border: #46b8da solid 1px;
+    /*border: #46b8da solid 1px;*/
 }
 
 #footertext{
@@ -47,7 +53,7 @@ body{
 }
 
 .listnews li{
-    padding-bottom: 10px;
+    padding-top: 10px;
 }
 
 .listnews{
@@ -67,4 +73,27 @@ body{
 
 .breadcrumb{
     margin: 0px;
+}
+
+.user{
+    padding-top: 50px;
+    text-align: center;
+    margin-top: 50px;
+    margin-bottom: 250px;
+    /*border: #0f0f0f solid 1px;*/
+    height: 200px;
+}
+
+.user:hover{
+    background-color: rgb(240,240,240);
+}
+
+.content{
+    border-left:2px solid rgb(240,240,240);
+    border-right:2px solid rgb(240,240,240);
+}
+
+.recommendnews{
+    margin-top: 5px;
+    /*border-left:2px solid rgb(240,240,240);*/
 }

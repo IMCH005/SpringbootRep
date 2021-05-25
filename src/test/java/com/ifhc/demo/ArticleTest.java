@@ -1,5 +1,6 @@
 package com.ifhc.demo;
 
+import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.huaban.analysis.jieba.JiebaSegmenter;
 import com.huaban.analysis.jieba.SegToken;
 import com.ifhc.entity.Article;
@@ -7,6 +8,7 @@ import com.ifhc.entity.ArticleName;
 import com.ifhc.entity.ArticleWord;
 import com.ifhc.entity.Vocabulary;
 import com.ifhc.mapper.ArticleMapper;
+import com.ifhc.service.ArticleService;
 import com.ifhc.util.JBUtil;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -23,14 +25,117 @@ public class ArticleTest {
     @Autowired
     private ArticleMapper articleMapper;
 
+    @Autowired
+    private ArticleService articleService;
+
     @Test
     public void searchArticleNameByTfIdf() {
-        List<String> words= JBUtil.toWord("陈浩");
+        List<String> words= JBUtil.toWord("教育");
         System.out.println(words);
         System.out.println(articleMapper.searchArticleNameByTfIdf(words));
     }
 
     @Test
+    public void viewId(){
+//       List<Integer> ids=articleMapper.sameArticleWordById(1,3);
+//        System.out.println(ids);
+    }
+
+    public Double hailow(ArticleName articleName){
+        Double thisEnd=0d;
+        for (ArticleWord articleWord : articleName.getArticleWords()) {
+            thisEnd+=Math.pow(articleWord.getTfIdf(),2);
+        }
+        return thisEnd=Math.sqrt(thisEnd);
+    }
+
+    @Test
+    public void testCore(){
+        List<ArticleName> articleNames = articleService.ArticleRecommend(1);
+        for (ArticleName articleName : articleNames) {
+            System.out.println(articleName);
+        }
+    }
+
+    @Test
+    public void testids(){
+        long l = System.currentTimeMillis();
+        ArticleName thisArticleName=articleMapper.getByListDimension(36,3);
+//        Double thisEnd=0d;
+//        for (ArticleWord articleWord : thisArticleName.getArticleWords()) {
+//            thisEnd+=Math.pow(articleWord.getTfIdf(),2);
+//        }
+//        thisEnd=Math.sqrt(thisEnd);
+        List<String> list = articleMapper.wordByArticleId(36,3);
+//        System.out.println(list);
+        List<Integer> ids=articleMapper.articleIdByWordList(list,9);
+//        System.out.println(ids);
+        Map<Double, ArticleName> articleNames = new TreeMap<>(
+                new Comparator<Double>() {
+                    public int compare(Double obj1, Double obj2) {
+                        // 降序排序
+                        return obj2.compareTo(obj1);
+                    }
+                }
+        );
+        Map<Double, ArticleName> returnArticleNames = new TreeMap<>(
+                new Comparator<Double>() {
+                    public int compare(Double obj1, Double obj2) {
+                        // 降序排序
+                        return obj2.compareTo(obj1);
+                    }
+                }
+        );
+        ArrayList<Double> top = new ArrayList<>();
+        Double cos=0d;
+        for (Integer id : ids) {
+            if (id != 36) {
+                ArticleName articleName=articleMapper.getByListDimension(id,3);
+                for (ArticleWord articleWord : articleName.getArticleWords()) {
+                    for (ArticleWord thisarticleWord : thisArticleName.getArticleWords()) {
+                        if(thisarticleWord.getWord().equals(articleWord.getWord())){
+                            cos+=thisarticleWord.getTfIdf()*articleWord.getTfIdf();
+                        }
+                    }
+                }
+                if(cos!=0d){
+                    cos=cos/(hailow(thisArticleName)*hailow(articleName));
+                    articleNames.put(cos,articleName);
+                    top.add(cos);
+                }
+                cos=0d;
+            }
+
+        }
+        Collections.sort(top);
+        Collections.reverse(top);
+        System.out.println(top);
+
+        int index=0;
+        for (Map.Entry<Double, ArticleName> entry : articleNames.entrySet()) {
+            if(index<10){
+                String key = entry.getKey().toString();
+                String value = entry.getValue().toString();
+                System.out.println("key=" + key + " value=" + value);
+                returnArticleNames.put(entry.getKey(),entry.getValue());
+                index++;
+            }else{
+                break;
+            }
+        }
+
+//        System.out.println(articleNames);
+//        System.out.println(articleNames.size());
+
+    }
+    @Test
+    public void guigui() {
+        List<String> words = JBUtil.toWord("教育公平");
+        System.out.println(words);
+        System.out.println(articleMapper.getArticleWord(words,213343));
+    }
+
+        @Test
     public void tfidf() {
         List<ArticleName> articles=articleMapper.searchArticleNameByTfIdf(JBUtil.toWord("我来到清华大学"));
         System.out.println(articles);

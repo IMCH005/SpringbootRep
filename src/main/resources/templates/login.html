@@ -7,6 +7,113 @@
     <link rel="stylesheet" href="css/index.css">
 </head>
 <body>
-这是一个登录页面,可不是吗
+<div class="container header">
+    <div class="row">
+        <div class="col-lg-12 ">
+            <h1>NEWSDEMO</h1>
+        </div>
+    </div>
+</div>
+
+<div class="container navigation">
+    <ol class="breadcrumb">
+        <li><a href="/index">登录</a></li>
+    </ol>
+</div>
+
+<div class="container content">
+    <div class="row" style="text-align: center">
+        <h1>请先登录哦~</h1>
+    </div>
+    <div class="row">
+        <div class="col-lg-3 user">
+            <form th:action="@{/user/login}"  method="post">
+                <div class="col-lg-12">
+                    名字:庄泽强
+                </div>
+                <div class="col-lg-12">
+                    性别:真男人
+                </div>
+                <div class="col-lg-12">
+                    年龄:20
+                </div>
+                <div class="col-lg-12">
+                    职业:啦啦队
+                </div>
+                <input type="hidden" name="id" value="1">
+                <button type="submit" class="btn btn-primary">登录</button>
+
+            </form>
+        </div>
+
+        <div class="col-lg-3 user">
+            <form th:action="@{/user/login}"  method="post">
+                <div class="col-lg-12">
+                    名字:李伯伯
+                </div>
+                <div class="col-lg-12">
+                    性别:真男人
+                </div>
+                <div class="col-lg-12">
+                    年龄:50
+                </div>
+                <div class="col-lg-12">
+                    职业:啦啦队
+                </div>
+                <input type="hidden" name="id" value="2">
+                <button type="submit" class="btn btn-primary">登录</button>
+
+            </form>
+        </div>
+
+        <div class="col-lg-3 user">
+            <form th:action="@{/user/login}"  method="post">
+                <div class="col-lg-12">
+                    名字:李婶婶
+                </div>
+                <div class="col-lg-12">
+                    性别:女性
+                </div>
+                <div class="col-lg-12">
+                    年龄:30
+                </div>
+                <div class="col-lg-12">
+                    职业:啦啦队
+                </div>
+                <input type="hidden" name="id" value="3">
+                <button type="submit" class="btn btn-primary">登录</button>
+
+            </form>
+        </div>
+
+        <div class="col-lg-3 user">
+            <form th:action="@{/user/login}"  method="post">
+                <div class="col-lg-12">
+                    名字:陈子轩
+                </div>
+                <div class="col-lg-12">
+                    性别:真男人
+                </div>
+                <div class="col-lg-12">
+                    年龄:10
+                </div>
+                <div class="col-lg-12">
+                    职业:啦啦队
+                </div>
+                <input type="hidden" name="id" value="4">
+                <button type="submit" class="btn btn-primary">登录</button>
+
+            </form>
+        </div>
+    </div>
+</div>
+
+<div class="container footer">
+    <div class="row">
+        <div class="col-lg-12" id="footertext">
+            <text>Copyright 2020-2022 Justin</text>
+        </div>
+    </div>
+</div>
 </body>
 </html>

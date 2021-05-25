@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ifhc.mapper.ViewMapper">
+    <select id="getByView" parameterType="com.ifhc.entity.View" resultType="com.ifhc.entity.View">
+        select * from view where user_id=#{userId} and article_id=#{articleId}
+    </select>
+
+    <update id="updateView" parameterType="com.ifhc.entity.View">
+        update view
+        <set>
+            <if test="id != null">id=#{id},</if>
+            <if test="userId != null">user_id=#{userId},</if>
+            <if test="articleId != null">article_id=#{articleId},</if>
+            <if test="interest != null">interest=#{interest},</if>
+            <if test="quality != null">quality=#{quality}</if>
+        </set>
+         where user_id=#{userId} and article_id=#{articleId}
+    </update>
+
+    <insert id="insertView" parameterType="com.ifhc.entity.View">
+        insert into view (user_id,article_id,interest,quality) values (#{userId},#{articleId},#{interest},#{quality})
+    </insert>
+
+    <insert id="insertMatrix" parameterType="java.util.Map">
+        insert into similarity_matrix (article_id_one,article_id_another,similarity) values (#{idA},#{idB},#{similarity})
+    </insert>
+
+    <select id="getAHighPointArticle" parameterType="java.lang.Integer" resultType="com.ifhc.entity.View">
+        select * from view where interest=5 and user_id=#{userId} order by id desc limit 1
+    </select>
+
+    <select id="Recommend" parameterType="java.lang.Integer" resultType="com.ifhc.entity.SimilarityMatrix">
+        select * from similarity_matrix where (article_id_one=#{artilceId} or article_id_another=#{artilceId}) and similarity &lt; 1 order by similarity desc limit 10    </select>
+</mapper>

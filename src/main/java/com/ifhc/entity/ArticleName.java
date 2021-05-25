@@ -1,6 +1,7 @@
 package com.ifhc.entity;
 
 import java.io.Serializable;
+import java.util.List;
 
 public class ArticleName implements Serializable {
     private static final long serialVersionUID = 1717303153559139272L;
@@ -8,7 +9,7 @@ public class ArticleName implements Serializable {
     String docno;
     String url;
     String title;
-    float tfIdf;
+    List<ArticleWord> articleWords;
 
     public int getId() {
         return id;
@@ -42,11 +43,22 @@ public class ArticleName implements Serializable {
         this.title = title;
     }
 
-    public float getTfIdf() {
-        return tfIdf;
+    public List<ArticleWord> getArticleWords() {
+        return articleWords;
     }
 
-    public void setTfIdf(float tfIdf) {
-        this.tfIdf = tfIdf;
+    public void setArticleWords(List<ArticleWord> articleWords) {
+        this.articleWords = articleWords;
+    }
+
+    @Override
+    public String toString() {
+        return "ArticleName{" +
+                "id=" + id +
+                ", docno='" + docno + '\'' +
+                ", url='" + url + '\'' +
+                ", title='" + title + '\'' +
+                ", articleWords=" + articleWords +
+                '}';
     }
 }

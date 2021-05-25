@@ -57,7 +57,8 @@
             </div>
 <!--            <div th:each="a : ${articleNames}" class="listnews">-->
                 <div th:each="a : ${pageInfo.list}" class="listnews">
-                    <li><a th:text="${a.tfIdf}"></a>---<a th:text="${a.title}" th:href="@{/view(docno=${a.docno})}"></a></li>
+                    <li><a th:text="${a.title}" th:href="@{/view(docno=${a.docno})}"></a></li>
+                    <span th:each="articleWord : ${a.articleWords}" style="margin-right: 20px;font-size: 7px"><span th:text="${articleWord.word}"></span>:<span th:text="${articleWord.tfIdf}"></span></span>
             </div>
 
             <div class="modal-footer no-margin-top">
